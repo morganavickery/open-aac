@@ -19,7 +19,7 @@
     "@emoji-mart/react": "^1.1.1",
     "dexie": "^3.2.2",
     "i18next": "^23.0.1",
-    "react": "^18.2.0",
+    "react": "^19.2.3",
     "react-dom": "^18.2.0",
     "react-easy-crop": "^5.5.6",
     "uuid": "^13.0.0"

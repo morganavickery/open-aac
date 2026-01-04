@@ -1,0 +1,30 @@
+- name: bug
+  color: ff0000
+  description: "A bug in the project"
+- name: enhancement
+  color: 84b6eb
+  description: "New feature or improvement"
+- name: accessibility
+  color: 7ee787
+  description: "Accessibility related issue or suggestion"
+- name: help wanted
+  color: d4c5f9
+  description: "Good first issue or help needed"
+- name: question
+  color: 0075ca
+  description: "General question"
+- name: docs
+  color: 0e8a16
+  description: "Documentation only changes"
+- name: triage
+  color: f9d0c4
+  description: "Needs triage / more info"
+- name: p0
+  color: 000000
+  description: "Critical (blocks communication)"
+- name: p1
+  color: fbca04
+  description: "High priority"
+- name: p2
+  color: 0e8a16
+  description: "Normal/low priority"

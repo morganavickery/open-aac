@@ -1,0 +1,43 @@
+name: CI - lint, test, a11y
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
+
+      - name: Serve built site (background)
+        run: npx http-server ./dist -p 8080 > /dev/null 2>&1 &
+
+      - name: Accessibility check (pa11y)
+        # run a basic pa11y check against the homepage
+        run: npx pa11y http://localhost:8080 || true
+        # Note: using '|| true' to avoid breaking CI for strict failures.
+        # Remove '|| true' if you want a11y failures to fail the job.

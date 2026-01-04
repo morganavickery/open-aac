@@ -1,0 +1,11 @@
+# Default ownership for code & docs
+# Use GitHub usernames (replace <your-username> with your GitHub handle)
+
+# All code
+/ @morganavickery
+
+# Docs
+/docs/ @morganavickery
+
+# CI and workflow config
+.github/workflows/ @morganavickery

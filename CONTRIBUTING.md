@@ -66,4 +66,6 @@ We actively seek AAC users for co-design sessions. If you want to partner in use
 * Do NOT post user data (screenshots with personal info) in issues.
 * To disclose a security/privacy issue, see `SECURITY.md` (or email the project maintainer).
 
+## 
+
 

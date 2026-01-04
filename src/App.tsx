@@ -1,10 +1,9 @@
-import React from 'react'
-import BoardRenderer from './components/BoardRenderer'
-import sampleBoard from './data/sample-board.json'
-import { useTTS } from './services/tts'
+import BoardEditor from './components/BoardEditor'
+import { useEffect } from 'react'
+import { seedIfEmpty } from './services/db'
 
 export default function App() {
-  const tts = useTTS()
+  useEffect(()=> { seedIfEmpty() }, [])
   return (
     <div className="min-h-screen bg-slate-50 p-4">
       <header className="mb-4">
@@ -13,7 +12,7 @@ export default function App() {
       </header>
 
       <main>
-        <BoardRenderer board={sampleBoard} onPlay={(text)=> tts.play(text)} />
+        <BoardEditor />
       </main>
     </div>
   )

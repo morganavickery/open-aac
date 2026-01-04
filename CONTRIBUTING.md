@@ -12,6 +12,7 @@ Thanks for helping build **Open AAC** — an open, free, and accessible AAC PWA.
 ## Getting started (quick)
 
 
+
 1. Fork the repo and clone locally:
 
    ```bash
@@ -42,6 +43,7 @@ Use the **Feature Request** template. Be concrete: describe the problem, suggest
 ## Accessibility & testing
 
 If your change affects UI or interaction, do at least the following:
+
 
 
 1. Keyboard-only navigation (Tab order, focus visible).

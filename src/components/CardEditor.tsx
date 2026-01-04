@@ -1,15 +1,13 @@
-// src/components/CardEditor.tsx (optional)
+// src/components/CardEditor.tsx
 import React from "react";
 import { Card } from "../services/db";
 
 export default function CardEditor({
   card,
   onChange,
-  onFile,
 }: {
   card: Card;
   onChange: (patch: Partial<Card>) => void;
-  onFile: (f?: File | null) => void;
 }) {
   return (
     <div className="p-2 bg-white rounded shadow-sm">
@@ -25,20 +23,8 @@ export default function CardEditor({
         onChange={(e) => onChange({ text: e.target.value })}
         className="w-full p-1 border rounded"
       />
-      <div className="mt-2 flex items-center gap-2">
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => onFile(e.target.files?.[0] || null)}
-        />
-        {card.image && (
-          <button
-            onClick={() => onChange({ image: undefined })}
-            className="text-sm border rounded px-2"
-          >
-            Remove
-          </button>
-        )}
+      <div className="mt-2 text-xs text-slate-500">
+        Use the "Choose image" button on the card to add or replace an image.
       </div>
     </div>
   );

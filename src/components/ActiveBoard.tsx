@@ -1,8 +1,8 @@
 // src/components/ActiveBoard.tsx
 import React, { useState } from "react";
 import { Board, Card } from "../services/db";
-import ImagePickerModal from "./ImagePickerModal"; // make this file per the earlier spec
-import CardInfoModal from "./CardInfoModal"; // import at top
+import ImagePickerModal from "./ImagePickerModal";
+import CardInfoModal from "./CardInfoModal";
 
 export default function ActiveBoard({
   board,
@@ -63,23 +63,36 @@ export default function ActiveBoard({
   );
 }
 
-// inside src/components/ActiveBoard.tsx (CardView)
-
 function CardView({
   card,
   editable,
   onChange,
-  onFileInput,
 }: {
   card: Card;
   editable: boolean;
   onChange: (patch: Partial<Card>) => void;
-  onFileInput?: (file?: File | null) => void;
 }) {
-  const [infoOpen, setInfoOpen] = React.useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [infoOpen, setInfoOpen] = useState(false);
 
   return (
     <>
+      <ImagePickerModal
+        isOpen={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        onSelect={(res) => {
+          // res: { dataUrl, source, author, pageUrl, license }
+          onChange({
+            image: res.dataUrl,
+            imageSource: res.source,
+            imageAuthor: res.author,
+            imagePageUrl: res.pageUrl,
+            imageLicense: res.license,
+          });
+          setPickerOpen(false);
+        }}
+      />
+
       <CardInfoModal
         isOpen={infoOpen}
         onClose={() => setInfoOpen(false)}
@@ -103,7 +116,90 @@ function CardView({
           ⓘ
         </button>
 
-        {/* existing image area and label... */}
+        <div className="flex-1 flex items-center justify-center p-2 overflow-hidden">
+          {card.image ? (
+            <img
+              src={card.image}
+              alt={card.label || "card image"}
+              style={{
+                maxWidth: "100%",
+                maxHeight: "100%",
+                objectFit: "contain",
+                display: "block",
+              }}
+            />
+          ) : (
+            <div
+              className="w-full h-full flex items-center justify-center"
+              aria-hidden
+            />
+          )}
+        </div>
+
+        <div
+          className="p-2 border-t border-slate-100 bg-white"
+          style={{ boxSizing: "border-box" }}
+        >
+          {editable ? (
+            <div
+              className="flex flex-col gap-2"
+              style={{ maxHeight: 120, overflow: "auto" }}
+            >
+              <label className="block text-xs text-slate-600">Label</label>
+              <input
+                value={card.label || ""}
+                onChange={(e) => onChange({ label: e.target.value })}
+                className="w-full p-1 border rounded text-sm"
+                aria-label="Card label"
+              />
+
+              <label className="block text-xs text-slate-600">
+                TTS text (optional)
+              </label>
+              <input
+                value={card.text || ""}
+                onChange={(e) => onChange({ text: e.target.value })}
+                className="w-full p-1 border rounded text-sm"
+                aria-label="Card text"
+              />
+
+              <div className="mt-1 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setPickerOpen(true)}
+                  className="px-2 py-1 border rounded text-sm"
+                  aria-haspopup="dialog"
+                >
+                  Choose image
+                </button>
+
+                {card.image && (
+                  <button
+                    onClick={() =>
+                      onChange({
+                        image: undefined,
+                        imageSource: undefined,
+                        imageAuthor: undefined,
+                        imagePageUrl: undefined,
+                        imageLicense: undefined,
+                      })
+                    }
+                    className="text-sm px-2 py-1 rounded border ml-auto"
+                    aria-label="Remove image"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="text-center">
+              <div className="font-medium text-sm truncate" title={card.label}>
+                {card.label}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </>
   );

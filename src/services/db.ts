@@ -1,15 +1,14 @@
 // src/services/db.ts
 import Dexie from "dexie";
 
-// src/services/db.ts (only the Card interface portion)
 export interface Card {
   id: string;
   label: string;
   text?: string;
-  image?: string; // data URL (actual binary) for offline use
-  imageSource?: string; // e.g., "Pixabay", "Openverse"
-  imageAuthor?: string; // optional: author name
-  imagePageUrl?: string; // optional: original page URL / source URL
+  image?: string; // data URL (binary) stored for offline use
+  imageSource?: string; // e.g., "Pixabay", "Openverse", or "Upload"
+  imageAuthor?: string; // author name (if available)
+  imagePageUrl?: string; // original page URL (if available)
   imageLicense?: string; // e.g., "Pixabay", "CC0", "Pexels"
 }
 
@@ -33,7 +32,7 @@ export class AACDB extends Dexie {
 
 export const db = new AACDB();
 
-// optional seed helper used by App
+// Optional seeding helper
 export async function seedIfEmpty() {
   const count = await db.boards.count();
   if (count === 0) {

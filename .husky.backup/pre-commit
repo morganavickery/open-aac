@@ -1,3 +1,0 @@
-#!/usr/bin/env sh
-# Simple pre-commit hook: run lint-staged if available
-npx --no-install lint-staged || npx lint-staged || true

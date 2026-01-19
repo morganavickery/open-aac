@@ -6,7 +6,9 @@ import Dexie, { Table } from "dexie";
  *
  * Tables:
  * - boards: stores boards and cells (cards)
- * - images: stores image Blobs + metadata
+ * - images: stores image Blobs + metadata (user uploads, pixabay, etc.)
+ * - terms: stores normalized vocabulary terms (e.g., ARASAAC pictograms/terms)
+ * - assets: stores externally-sourced blobs tied to terms (e.g., ARASAAC pictograms)
  */
 
 export type Card = {
@@ -46,9 +48,47 @@ export type ImageRecord = {
   pageUrl?: string;
 };
 
+/**
+ * TermRecord
+ * - normalized vocabulary term (e.g., from ARASAAC)
+ * - can optionally reference an asset blob stored in `assets` via localImageKey
+ */
+export type TermRecord = {
+  id: string; // e.g., "arasaac:1234"
+  source: string; // "arasaac"
+  sourceId: number; // 1234
+  label: string;
+  tags: string[];
+  defaultImageUrl: string; // remote static URL
+  license?: { name: string; url?: string };
+  localImageKey?: string | null; // e.g., "arasaac-img:1234:500"
+  createdAt?: number;
+  updatedAt?: number;
+};
+
+/**
+ * AssetRecord
+ * - stores blobs (mostly images) for offline use, keyed by a stable string
+ * - separate from `images` so we can treat "user images" vs "library assets" differently
+ */
+export type AssetRecord = {
+  key: string; // e.g., "arasaac-img:1234:500"
+  blob: Blob;
+  source?: string; // "arasaac"
+  sourceId?: number; // 1234
+  size?: number; // 500
+  createdAt?: number;
+  lastUsedAt?: number;
+  license?: string;
+  author?: string;
+  pageUrl?: string;
+};
+
 class AppDB extends Dexie {
   boards!: Table<Board, string>;
   images!: Table<ImageRecord, string>;
+  terms!: Table<TermRecord, string>;
+  assets!: Table<AssetRecord, string>;
 
   constructor() {
     super("aac_db");
@@ -64,8 +104,18 @@ class AppDB extends Dexie {
       images: "id, lastUsedAt, createdAt",
     });
 
+    // v3: add terms + assets tables (for ARASAAC + other library integrations)
+    this.version(3).stores({
+      boards: "id",
+      images: "id, lastUsedAt, createdAt",
+      terms: "id, source, sourceId, label",
+      assets: "key, source, sourceId, createdAt, lastUsedAt",
+    });
+
     this.boards = this.table("boards");
     this.images = this.table("images");
+    this.terms = this.table("terms");
+    this.assets = this.table("assets");
   }
 }
 
@@ -174,6 +224,59 @@ export async function cleanupImagesLRU(maxBytes: number): Promise<number> {
     removed++;
   }
   return removed;
+}
+
+/* ----------------- Assets (library blobs) helpers ----------------- */
+
+/**
+ * saveAssetBlob
+ * - saves a Blob to assets table under a provided key
+ */
+export async function saveAssetBlob(
+  key: string,
+  blob: Blob,
+  meta?: Partial<AssetRecord>,
+): Promise<string> {
+  const rec: AssetRecord = {
+    key,
+    blob,
+    source: meta?.source,
+    sourceId: meta?.sourceId,
+    size: meta?.size,
+    createdAt: meta?.createdAt ?? Date.now(),
+    lastUsedAt: meta?.lastUsedAt ?? Date.now(),
+    license: meta?.license,
+    author: meta?.author,
+    pageUrl: meta?.pageUrl,
+  };
+  await db.assets.put(rec);
+  return key;
+}
+
+/**
+ * getAssetBlob
+ */
+export async function getAssetBlob(key: string): Promise<Blob | undefined> {
+  const rec = await db.assets.get(key);
+  return rec?.blob;
+}
+
+/**
+ * getAssetObjectURL
+ * - returns an object URL for a stored asset blob and touches lastUsedAt
+ */
+export async function getAssetObjectURL(key: string): Promise<string | undefined> {
+  const rec = await db.assets.get(key);
+  if (!rec) return undefined;
+  void db.assets.update(key, { lastUsedAt: Date.now() });
+  return URL.createObjectURL(rec.blob);
+}
+
+/**
+ * deleteAsset
+ */
+export async function deleteAsset(key: string): Promise<void> {
+  await db.assets.delete(key);
 }
 
 /* ----------------- Boards convenience ----------------- */

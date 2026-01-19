@@ -42,6 +42,7 @@ export default function ImagePickerModal({
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
   const [toCrop, setToCrop] = useState<{
     src: string;
     meta?: Partial<PickResult>;
@@ -51,9 +52,30 @@ export default function ImagePickerModal({
     setQuery(initialQuery || "");
   }, [initialQuery]);
 
+  useEffect(() => {
+    function handleOnline() {
+      setIsOnline(true);
+    }
+    function handleOffline() {
+      setIsOnline(false);
+      setResults([]);
+      setError("You are offline. Search is unavailable.");
+    }
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
   const DEV_PIXABAY_KEY = (import.meta as any).env?.VITE_PIXABAY_KEY || "";
 
   async function searchPixabay() {
+    if (!isOnline) {
+      setError("You are offline. Search is unavailable.");
+      return;
+    }
     if (!query) return;
     setLoading(true);
     setError(null);
@@ -367,14 +389,20 @@ export default function ImagePickerModal({
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search Pixabay..."
+                  disabled={!isOnline}
                   style={{
                     flex: 1,
                     padding: 10,
                     border: "1px solid #e5e7eb",
                     borderRadius: 6,
+                    background: isOnline ? "#fff" : "#f3f4f6",
                   }}
                 />
-                <button onClick={searchPixabay} style={{ padding: "8px 12px" }}>
+                <button
+                  onClick={searchPixabay}
+                  style={{ padding: "8px 12px" }}
+                  disabled={!isOnline}
+                >
                   Search
                 </button>
               </div>
@@ -383,6 +411,13 @@ export default function ImagePickerModal({
                 Searching Pixabay (free images). After choosing an image you'll
                 be able to crop it to a square.
               </div>
+
+              {!isOnline && (
+                <div style={{ color: "#b45309", marginBottom: 8 }}>
+                  You are offline. Image search requires an internet
+                  connection.
+                </div>
+              )}
 
               {error && (
                 <div style={{ color: "crimson", marginBottom: 8 }}>{error}</div>

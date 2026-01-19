@@ -89,8 +89,10 @@ export default function ImageCropper({
       // For robustness: compute ratio based on image width/height vs naturalWidth/naturalHeight using image.width/image.height if present.
 
       // To avoid complexity, we'll draw using drawImage with source coordinates in natural image space by scaling:
-      const ratioX = naturalWidth / image.width || 1;
-      const ratioY = naturalHeight / image.height || 1;
+      const renderedWidth = image.width || naturalWidth || 1;
+      const renderedHeight = image.height || naturalHeight || 1;
+      const ratioX = naturalWidth / renderedWidth;
+      const ratioY = naturalHeight / renderedHeight;
 
       const sx = Math.round(areaPixels.x * ratioX);
       const sy = Math.round(areaPixels.y * ratioY);

@@ -454,12 +454,6 @@ export default function BoardEditor() {
           editable={editable}
           onUpdateBoard={onUpdateBoard}
           onToggleEditable={() => setEditable((s) => !s)}
-          onSave={async () => {
-            if (!activeBoard) return;
-            await db.boards.put(activeBoard);
-            const all = await db.boards.toArray();
-            setBoards(all);
-          }}
         />
       </div>
     </div>

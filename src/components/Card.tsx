@@ -19,9 +19,11 @@ import { getImageObjectURL, touchImage } from "../services/db";
 
 export default function Card({
   card,
+  previewDataUrl,
   size = 140,
 }: {
   card: any;
+  previewDataUrl?: string;
   size?: number;
 }) {
   const [objectUrl, setObjectUrl] = useState<string | undefined>(undefined);
@@ -32,8 +34,8 @@ export default function Card({
 
     async function load() {
       // If there's an in-memory preview, show it immediately
-      if ((card as any).previewDataUrl) {
-        setObjectUrl((card as any).previewDataUrl);
+      if (previewDataUrl) {
+        setObjectUrl(previewDataUrl);
       }
 
       if (card.imageId) {
@@ -61,7 +63,7 @@ export default function Card({
         URL.revokeObjectURL(createdUrl);
       }
     };
-  }, [card.imageId, (card as any).previewDataUrl]);
+  }, [card.imageId, previewDataUrl]);
 
   const containerStyle: React.CSSProperties = {
     width: size,

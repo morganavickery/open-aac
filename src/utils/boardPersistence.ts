@@ -1,5 +1,5 @@
 // src/services/boardPersistence.ts
-import { db, Board, Card } from "./db";
+import { db, Board, Card } from "../services/db";
 
 /**
  * stripTransientPreview
